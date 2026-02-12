@@ -2,6 +2,21 @@ import cv2 as cv
 import numpy as np
 import glob
 
+def click_event(event, x, y, flags, params):
+    if event == cv.EVENT_LBUTTONDOWN:
+        print(x, y)
+        font = cv.FONT_HERSHEY_SIMPLEX
+        cv.putText(img, f"{x},{y}", (x, y), font, 1, (255, 0, 0), 2)
+        cv.imshow('image', img)
+
+    if event == cv.EVENT_RBUTTONDOWN:
+        print(x, y)
+        font = cv.FONT_HERSHEY_SIMPLEX
+        b, g, r = img[y, x]
+        cv.putText(img, f"{b},{g},{r}", (x, y), font, 1, (255, 255, 0), 2)
+        cv.imshow('image', img)
+
+
 # termination criteria
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -22,6 +37,13 @@ for fname in images:
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(gray, (6, 9), None)
 
+    if (ret == False): 
+        img = cv.imread('lena.jpg', 1)
+        cv.imshow('image', img)
+        cv.setMouseCallback('image', click_event)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+
     # If found, add object points, image points (after refining them)
     print(fname, ret)
     if ret:
@@ -30,10 +52,10 @@ for fname in images:
         corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
         imgpoints.append(corners2)
 
-        # Draw and display the corners
-        # cv.drawChessboardCorners(img, (6, 9), corners2, ret)
-        # cv.imshow('img', img)
-        # cv.waitKey(2)
+        #Draw and display the corners
+        cv.drawChessboardCorners(img, (6, 9), corners2, ret)
+        cv.imshow('img', img)
+        cv.waitKey(200)
 
 cv.destroyAllWindows()
 
