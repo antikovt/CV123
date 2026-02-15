@@ -35,6 +35,38 @@ for fname in images:
         # cv.imshow('img', img)
         # cv.waitKey(2)
 
+    else:
+        invGamma = 1.0 / 0.03
+        table = np.array([((i / 255.0) ** invGamma) * 255
+                         for i in np.arange(0, 256)]).astype("uint8")
+        # apply gamma correction using the lookup table
+        modify = cv.LUT(img, table)
+        # modify = cv.convertScaleAbs(cv.LUT(img, table), alpha=0.5, beta=0)
+        # modify = cv.LUT(cv.convertScaleAbs(img, alpha=0.3, beta=120), table)
+
+        # lwr = np.array([0, 0, 143])
+        # upr = np.array([179, 61, 252])
+        # hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+        # msk = cv.inRange(hsv, lwr, upr)
+        # krn = cv.getStructuringElement(cv.MORPH_RECT, (50, 30))
+        # dlt = cv.dilate(msk, krn, iterations=5)
+        # res = 255 - cv.bitwise_and(dlt, msk)
+        # res = np.uint8(res)
+
+        cv.imshow("modified", modify)
+        cv.waitKey()
+
+        ret, corners = cv.findChessboardCorners(modify, (6, 9), None)
+
+        # If found, add object points, image points (after refining them)
+        print(fname, ret)
+        if ret:
+            objpoints.append(objp)
+
+            corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+            imgpoints.append(corners2)
+
+
 cv.destroyAllWindows()
 
 img = cv.imread('img/1.jpg')
