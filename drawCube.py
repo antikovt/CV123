@@ -41,14 +41,21 @@ def draw_cube(img, imgpts, rvec, tvec, cube_3d, K, dist):
 
     n_obj = np.array([[0.0], [0.0], [-1.0]])
     n_cam = np.dot(R, n_obj)
+
+    print("Camera normal:", n_cam.ravel())
     
     z_cam = np.array([[0.0], [0.0], [1.0]])
+
+    print("Camera:", np.dot(n_cam.T, z_cam))
 
     # orientation between camera and board normals
     angle = np.dot(n_cam.T, z_cam) / (np.linalg.norm(n_cam) * np.linalg.norm(z_cam))
     angle = float(np.clip(np.abs(angle).item(), -1.0, 1.0))
+
+    print ("Angle:", angle)
     angle_deg = float(np.degrees(np.arccos(angle)))
 
+    print("angle_deg:", angle_deg)
     # OpenCV hue is between 0 and 179 so we used 179 as max not 255 like the assignment description states.
     H = float(np.clip(179.0 * ((45.0 - angle_deg) / 45.0), 0.0, 179.0))
 
