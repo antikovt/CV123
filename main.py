@@ -21,7 +21,7 @@ imgpoints = []  # 2d points in image plane.
 corners = []
 
 # images
-images = glob.glob('img1/*.jpg')
+images = glob.glob('img2/*.jpg')
 
 image_names = []
 
@@ -41,6 +41,7 @@ for fname in images:
         ret, corners = manualCornerInput.manual_corner_input(img)
     
     objpoints.append(objp)
+    print("Corners:\n", corners)
         
     corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
     imgpoints.append(corners2)

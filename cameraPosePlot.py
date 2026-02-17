@@ -23,7 +23,7 @@ def compute_camera_centers(rvecs, tvecs, square_size_m=1.0):
 def plot_camera_centers(centers_m, labels, square_size_m, board_shape,
                         axis_len_squares):
     
-    P = np.asarray(centers_m)
+    P = np.array(centers_m)
 
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection="3d")
