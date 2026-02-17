@@ -23,7 +23,7 @@ def click_event(event, x, y, flags, param):
         cv.putText(param["img2"], "O", (x - offset, y + offset), font, 0.5, (255, 0, 0), 2)
         cv.imshow('image', param["img2"])
 
-# manual input of corners, takkes the image and outputs the corners array
+# manual input of corners, takes the image and outputs the corners array
 def manual_corner_input(img):
 
     img2 = img.copy()
@@ -48,10 +48,10 @@ def manual_corner_input(img):
             x = int(bilinear_interpolation(i, j, [(0, 0, top_left[0]), (8, 0, top_right[0]), (0, 5, bottom_left[0]), (8, 5, bottom_right[0])]))
             y = int(bilinear_interpolation(i, j, [(0, 0, top_left[1]), (8, 0, top_right[1]), (0, 5, bottom_left[1]), (8, 5, bottom_right[1])]))
             corners.append([x, y])
-            
+
     print ("Corners:\n", corners)
 
-    # findChessboardCoarners returns np.array of type np.float32, needed for cornerSubPix
+    # findChessboardCorners returns np.array of type np.float32, needed for cornerSubPix
     corners = np.array(corners, np.float32)
     # Make return true again because now we have corners
     return True, np.array(corners, np.float32)

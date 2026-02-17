@@ -8,10 +8,10 @@ while camera.isOpened():
     ret, frame = camera.read()
     if ret:
 
-        ret2, coords = find_corners(frame, 7, 13)
+        ret2, coords = find_corners(frame, 7, 10)
 
         if ret2:
-            cv.drawChessboardCorners(frame, (7, 13), coords, ret2)
+            cv.drawChessboardCorners(frame, (7, 10), coords, ret2)
 
     cv.imshow('aaa', frame)
 

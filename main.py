@@ -37,7 +37,7 @@ for fname in images:
     # Print the filename and whether corners were found
     print(fname, ret)
 
-    if (ret == False): 
+    if not ret:
         ret, corners = manualCornerInput.manual_corner_input(img)
     
     objpoints.append(objp)
