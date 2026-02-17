@@ -21,7 +21,7 @@ imgpoints = []  # 2d points in image plane.
 corners = []
 
 # images
-images = glob.glob('img2/*.jpg')
+images = glob.glob('img/*.jpg')
 
 image_names = []
 
@@ -51,7 +51,7 @@ for fname in images:
     # Draw and display the corners
     cv.drawChessboardCorners(img, (9, 6), corners2, ret)
     cv.imshow('img', img)
-    cv.waitKey(1)
+    cv.waitKey(0)
 
 
 img = cv.imread('img1/30.jpg')
