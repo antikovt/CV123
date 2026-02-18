@@ -120,8 +120,8 @@ def main():
             ret_cube, corners_cube = find_corners(dst, points_x, points_y)
 
         if ret_cube:    # Finds extrinsics, draws a cube on an undistorted image
-            ret, rvec, tvec = cv.solvePnP(objp, corners_cube, newcameramtx, dist)
-            out = draw(dst, corners_cube, rvec, tvec, newcameramtx, dist, 0.025)
+            ret, rvec, tvec = cv.solvePnP(objp, corners_cube, newcameramtx, np.zeros((5, 1)))
+            out = draw(dst, corners_cube, rvec, tvec, newcameramtx, np.zeros((5, 1)), 0.025)
             cv.imshow(f'Image {images[choice-1]} with a cube', out)
             cv.waitKey(0)
         else:
