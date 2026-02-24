@@ -68,7 +68,7 @@ def manual_corner_input(img, x, y):
             points.append([cx, cy])
 
     # findChessboardCorners returns np.array of type np.float32, needed for cornerSubPix
-    points = np.array(points, np.float32)
+    points = np.array(points, np.float32).reshape(-1, 1, 2)
 
     # TODO: idk if I should do SubPix here, it kinda makes it worse when there's obstructions
     # yeahhh, probably not

@@ -1,11 +1,14 @@
-#!/usr/bin/env python3
 import cv2 as cv
 import numpy as np
 import glob
 
 from corner_search import find_corners, manual_corner_input
 from cube_draw import draw
+from camera_pose_plot import plot_camera_poses
+from remove_inaccurate_results import reprojection_error_filter
 
+
+# main function to run the script, takes user input for which part of the script to run
 def main():
     user_input = input("Which run? (1/2/3): ")
     if user_input == "1": path = 'img/run1/*.jpg'
@@ -80,59 +83,133 @@ def main():
     h, w = sample_gray.shape[:2]
     newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
 
+    print("\nK")
+    print(mtx)
+
+    print("\nK optimal:")
+    print(newcameramtx)
+
     print(f"Camera calibration completed! {len(images) - len(failed_images)} images analysed.")
 
     # -------------------------------------------------
+    while True:
+        user_input = input("\nWould you like to filter out inaccurate results based on reprojection error? (y/n): ")
 
-    print("\nChoose your next action:\n")
-    print("1 - Identify corners on a live camera feed")
-    print("2 - Draw cube on an image")
-    print("3 - Show cube on a live camera feed")
+        # build valid lists first (no None)
+        valid = [(o, p, name) for (o, p, name) in zip(objpoints, imgpoints, images)
+            if o is not None and p is not None]
 
-    user_input = input("\nEnter your choice: ")
-    if user_input == "1":
-        live_x = int(input("\nEnter the horizontal board size: "))
-        live_y = int(input("\nEnter the vertical board size: "))
-        find_corners_live(live_x, live_y)
+        obj_valid = [v[0] for v in valid]
+        img_valid = [v[1] for v in valid]
+        name_valid = [v[2] for v in valid]
 
-    elif user_input == "2":
-        print("\nWhich image to draw cube on?")
-        choice = int(input(f"Choose a number between 1 and {len(images)}: "))
-        if choice < 1 or choice > len(images):
-            print("\nNumber out of range.")
-            return
+        if user_input == "y":
+            threshold_px = float(input("\nEnter reprojection error threshold in pixels (e.g. 0.1): "))
 
-        # Undistorts the image
-        dst = cv.undistort(cv.imread(images[choice-1]), mtx, dist, None, newcameramtx)
-        rx, ry, rw, rh = roi
-        dst = dst[ry:ry + rh, rx:rx + rw]
+            obj_keep, img_keep, names_keep = reprojection_error_filter(
+                obj_valid, img_valid, name_valid,
+                mtx, dist, rvecs, tvecs,
+                threshold_px
+            )
 
-        if images[choice-1] in manual_images or images[choice-1] in failed_images:
-            print("\nBefore drawing a cube, image points need to be identified again after image calibration.")
-            print("This image has failed to process automatically, so corners need to be manually identified.")
-            second_input = input("\nRun another manual corner selection? (y/n): ")
-            if second_input != "y":
-                return
+            print(f"\nKept {len(obj_keep)} images after filtering, redoing calibration.")
+
+            objpoints = obj_keep
+            imgpoints = img_keep
+            images = names_keep
+
+            sample_image = cv.imread(images[3])
+            sample_gray = cv.cvtColor(sample_image, cv.COLOR_BGR2GRAY)
+            ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
+            list(filter(lambda x: x is not None, objpoints)),
+            list(filter(lambda x: x is not None, imgpoints)),
+            sample_gray.shape[::-1], None, None)
+
+            h, w = sample_gray.shape[:2]
+            newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+
+            print("\nK")
+            print(mtx)
+
+            print("\nK optimal:")
+            print(newcameramtx)
+        else:
+            print("\nSkipping reprojection error image filter.")
+            break
+
+
+
+    while True:
+        print("\nChoose your next action:\n")
+        print("1 - Identify corners on a live camera feed")
+        print("2 - Draw cube on an image")
+        print("3 - Show cube on a live camera feed")
+        print("4 - Show camera poses plot")
+        print("5 - Remove inaccurate results based on reprojection error")
+        print("\n0 - Exit")
+
+        user_input = input("\nEnter your choice: ")
+        if user_input == "1":
+            live_x = int(input("\nEnter the horizontal board size: "))
+            live_y = int(input("\nEnter the vertical board size: "))
+            find_corners_live(live_x, live_y)
+
+        elif user_input == "2":
+            print("\nWhich image to draw cube on?")
+            choice = int(input(f"Choose a number between 1 and {len(images)}: "))
+            if choice < 1 or choice > len(images):
+                print("\nNumber out of range.")
+                continue
+
+            # Undistorts the image
+            dst = cv.undistort(cv.imread(images[choice-1]), mtx, dist, None, newcameramtx)
+            rx, ry, rw, rh = roi
+            dst = dst[ry:ry + rh, rx:rx + rw]
+            newcameramtx[0,2] -= rx
+            newcameramtx[1,2] -= ry
+
+            if images[choice-1] in manual_images or images[choice-1] in failed_images:
+                print("\nBefore drawing a cube, image points need to be identified again after image calibration.")
+                print("This image has failed to process automatically, so corners need to be manually identified.")
+                second_input = input("\nRun another manual corner selection? (y/n): ")
+                if second_input != "y":
+                    continue
+                else:
+                    ret_cube, corners_cube = manual_corner_input(dst, points_x, points_y)
             else:
-                ret_cube, corners_cube = manual_corner_input(dst, points_x, points_y)
-        else:
-            ret_cube, corners_cube = find_corners(dst, points_x, points_y)
+                ret_cube, corners_cube = find_corners(dst, points_x, points_y)
 
-        if ret_cube:    # Finds extrinsics, draws a cube on an undistorted image
-            ret, rvec, tvec = cv.solvePnP(objp, corners_cube, newcameramtx, np.zeros((5, 1)))
-            out = draw(dst, corners_cube, rvec, tvec, newcameramtx, np.zeros((5, 1)), 0.025)
-            cv.imshow(f'Image {images[choice-1]} with a cube', out)
-            cv.waitKey(0)
-        else:
-            print("\nHuh, something went wrong.")
+            if ret_cube:    # Finds extrinsics, draws a cube on an undistorted image
+                ret, rvec, tvec = cv.solvePnP(objp, corners_cube, newcameramtx, np.zeros((5,1)))
+                out = draw(dst, corners_cube, rvec, tvec, newcameramtx, np.zeros((5,1)), 0.025)
+                cv.imshow(f'Image {images[choice-1]} with a cube', out)
+                cv.waitKey(0)
+                cv.destroyAllWindows()
+            else:
+                print("\nHuh, something went wrong.")
 
-    elif user_input == "3":
-        live_x = int(input("\nEnter the horizontal board size: "))
-        live_y = int(input("\nEnter the vertical board size: "))
-        size = float(input("\nEnter the size of a single board cell (in millimeters, decimals are allowed): ")) * 0.001
-        live_cube(live_x, live_y, size)
+        elif user_input == "3":
+            live_x = int(input("\nEnter the horizontal board size: "))
+            live_y = int(input("\nEnter the vertical board size: "))
+            size = float(input("\nEnter the size of a single board cell (in millimeters, decimals are allowed): ")) * 0.001
+            live_cube(live_x, live_y, size)
+
+        elif user_input == "4":
+            square_size_m=0.025
+            tvecs_m = [tv * square_size_m for tv in tvecs]
+            image_names = [name.split("\\")[-1] for name in images]
+            plot_camera_poses(rvecs, tvecs_m, image_names,
+                              square_size_m, (points_x, points_y), 3.0,
+                              3.0)
 
 
+        elif user_input == "0":
+            print("\nExiting.")
+            cv.destroyAllWindows()
+            break
+
+
+# function to find corners on a live camera feed
 def find_corners_live(x, y):
     camera = cv.VideoCapture(0)
 
@@ -147,7 +224,10 @@ def find_corners_live(x, y):
 
         if cv.waitKey(1) & 0xFF == ord("0"):
             break
+    camera.release()
+    cv.destroyAllWindows()
 
+# function to draw a cube on a live camera feed
 def live_cube(x, y, size):
     camera = cv.VideoCapture(0)
     objp = np.zeros((y * x, 3), np.float32)
@@ -177,8 +257,8 @@ def live_cube(x, y, size):
             cut = dst[ry:ry + rh, rx:rx + rw]
             ret_cube, corners_cube = find_corners(cut, x, y)
             if ret_cube:
-                ret, rvec, tvec = cv.solvePnP(objp, corners_cube, newcameramtx, dist)
-                cubed = draw(cut, corners_cube, rvec, tvec, newcameramtx, dist, size)
+                ret, rvec, tvec = cv.solvePnP(objp, corners_cube, newcameramtx, np.zeros((5,1)))
+                cubed = draw(cut, corners_cube, rvec, tvec, newcameramtx, np.zeros((5,1)), size)
             else:   # Will skip drawing the cube if corner search failed
                 cubed = cut
 
@@ -190,6 +270,9 @@ def live_cube(x, y, size):
 
         if cv.waitKey(1) & 0xFF == ord("0"):
             break
+
+    camera.release()
+    cv.destroyAllWindows()
 
 
 if __name__ == "__main__":
