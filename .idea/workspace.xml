@@ -1,58 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8b51b226-7d81-4e0e-a11e-7f4d8f25df52" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assignment 1/img/run1/bad1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assignment 1/img/run1/bad2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assignment 1/img/run1/bad3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assignment 1/img/run1/bad4.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assignment 1/img/run1/bad5.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/camera_pose_plot.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/remove_inaccurate_results.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/1.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/10.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/10.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/11.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/11.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/12.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/12.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/13.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/13.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/14.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/14.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/15.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/15.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/16.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/16.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/17.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/17.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/18.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/18.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/19.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/19.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/2.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/20.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/20.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/21.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/22.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/23.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/24.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/25.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/3.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/3.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/4.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/4.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/5.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/5.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/6.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/6.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/7.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/7.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/8.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/8.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run1/9.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run1/9.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/bad1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/bad1.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/bad2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/bad2.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/bad3.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/bad3.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/bad4.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/bad4.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/bad5.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/bad5.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/good1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/good1.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/good2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/good2.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/good3.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/good3.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/good4.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/good4.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run2/good5.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run2/good5.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run3/1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run3/1.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run3/2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run3/2.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run3/3.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run3/3.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run3/4.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run3/4.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/img/run3/5.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/img/run3/5.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assignment 1/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Assignment 1/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/corner_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/corner_search.py" afterDir="false" />
-    </list>
+    <list default="true" id="8b51b226-7d81-4e0e-a11e-7f4d8f25df52" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
