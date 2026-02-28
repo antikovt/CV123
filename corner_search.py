@@ -34,7 +34,7 @@ def click_event(event, x, y, flags, param):
 
 
 # manual input of corners, takes the image and outputs the corners array
-def manual_corner_input(img, x, y):
+def manual_corner_input(img, x, y, subpix=False):
     img2 = img.copy()
     four_corners = []
     param = {"img2": img2, "four_corners": four_corners}
@@ -71,10 +71,11 @@ def manual_corner_input(img, x, y):
     points = np.array(points, np.float32).reshape(-1, 1, 2)
 
     # TODO: idk if I should do SubPix here, it kinda makes it worse when there's obstructions
-    # yeahhh, probably not
+    # Upd: Added subpix for assignment 2. There's no obstructions, just a bad angle, so it might work.
 
-    # gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    # points = cv.cornerSubPix(gray, points, (11, 11), (-1, -1), criteria)
+    if subpix:
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        points = cv.cornerSubPix(gray, points, (11, 11), (-1, -1), criteria)
 
     return True, points
 

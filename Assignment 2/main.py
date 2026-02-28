@@ -3,6 +3,7 @@ import numpy as np
 
 from corner_search import find_corners, manual_corner_input
 from cube_draw import draw
+from remove_inaccurate_results import reprojection_error_filter_silent
 
 # read checkerboard characteristics from checkerboard.xml
 cb_storage = cv.FileStorage()
@@ -14,6 +15,8 @@ for node in cb_nodes:
     cb_values.append(int(cb_storage.getNode(node).real()))
 corners_x, corners_y, cell_size = cb_values
 
+cb_storage.release()
+
 objp = np.zeros((corners_y * corners_x, 3), np.float32)
 objp[:, :2] = np.mgrid[0:corners_x, 0:corners_y].T.reshape(-1, 2)
 
@@ -21,7 +24,11 @@ objp[:, :2] = np.mgrid[0:corners_x, 0:corners_y].T.reshape(-1, 2)
 objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
 
-vid = cv.VideoCapture('cam4/intrinsics.avi')
+cam_nr = 0
+while cam_nr < 1 or cam_nr > 4:
+    cam_nr = int(input("\nChoose the camera (1-4): "))
+
+vid = cv.VideoCapture(f'cam{cam_nr}/intrinsics.avi')
 frame_nr = 0
 
 while vid.isOpened():
@@ -34,7 +41,8 @@ while vid.isOpened():
     frame_nr += 1
 
     # analyze each 25th frame only
-    if frame_nr == 26:
+    # TODO: 100 is just for faster testing, change back to 26 for final run
+    if frame_nr == 100:
         frame_nr = 1
         ret2, coords = find_corners(frame, corners_x, corners_y, True)
         if ret2:
@@ -43,4 +51,104 @@ while vid.isOpened():
 
 vid.release()
 print(len(imgpoints))
+
+sample_gray = cv.cvtColor(sample_image, cv.COLOR_BGR2GRAY)
+ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
+    list(filter(lambda x: x is not None, objpoints)),
+    list(filter(lambda x: x is not None, imgpoints)),
+    sample_gray.shape[::-1], None, None)
+
+h, w = sample_gray.shape[:2]
+newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+
+print("\nK")
+print(mtx)
+
+print("\nK optimal:")
+print(newcameramtx)
+
+while True:
+    user_input = input("\nWould you like to filter out inaccurate results based on reprojection error? (y/n): ")
+
+
+    if user_input == "y":
+        threshold_px = float(input("\nEnter reprojection error threshold in pixels (e.g. 0.1): "))
+
+        obj_keep, img_keep = reprojection_error_filter_silent(
+            objpoints, imgpoints,
+            mtx, dist, rvecs, tvecs,
+            threshold_px
+        )
+
+        print(f"\nKept {len(obj_keep)} images after filtering. {len(objpoints) - len(obj_keep)} images discarded.")
+
+        objpoints = obj_keep
+        imgpoints = img_keep
+
+        ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
+            list(filter(lambda x: x is not None, objpoints)),
+            list(filter(lambda x: x is not None, imgpoints)),
+            sample_gray.shape[::-1], None, None)
+
+        h, w = sample_gray.shape[:2]
+        newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+
+        print("\nK")
+        print(mtx)
+
+        print("\nK optimal:")
+        print(newcameramtx)
+        break
+    else:
+        print("\nSkipping reprojection error image filter.")
+        break
+
+print("Saving camera intrinsics...")
+intr_filename = f'cam{cam_nr}/intrinsics.xml'
+intr_storage = cv.FileStorage()
+intr_storage.open(intr_filename, cv.FileStorage_READ)
+intr_matrix = intr_storage.getNode("CameraMatrix").mat()
+intr_dist = intr_storage.getNode("DistortionCoeffs").mat()
+intr_storage.release()
+
+intr_matrix = newcameramtx
+intr_dist = dist.T
+
+intr_storage.open(intr_filename, cv.FileStorage_WRITE)
+intr_storage.write('CameraMatrix', intr_matrix)
+intr_storage.write('DistortionCoeffs', intr_dist)
+intr_storage.release()
+
+vid = cv.VideoCapture(f'cam{cam_nr}/checkerboard.avi')
+frame_nr = 0
+objpoints = []
+imgpoints = []
+
+while vid.isOpened():
+    ret, frame = vid.read()
+    if not ret:
+        break
+
+    if frame_nr == 0:
+        sample_image = frame
+    frame_nr += 1
+
+    # analyze each 25th frame only
+    # TODO: 50 is just for faster testing, change back to 26 for final run
+    if frame_nr == 50:
+        frame_nr = 1
+
+        # Undistorts the image
+        dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
+        rx, ry, rw, rh = roi
+        dst = dst[ry:ry + rh, rx:rx + rw]
+        newcameramtx[0, 2] -= rx
+        newcameramtx[1, 2] -= ry
+
+        ret2, coords = manual_corner_input(dst, corners_x, corners_y, subpix=True)
+        if ret2:
+            objpoints.append(objp)
+            imgpoints.append(coords)
+
+vid.release()
 
