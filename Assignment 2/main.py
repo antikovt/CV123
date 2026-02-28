@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+from numpy.ma.extras import average
 
 from corner_search import find_corners, manual_corner_input
 from cube_draw import draw
@@ -14,6 +15,7 @@ cb_values = []
 for node in cb_nodes:
     cb_values.append(int(cb_storage.getNode(node).real()))
 corners_x, corners_y, cell_size = cb_values
+cell_size *= 0.001
 
 cb_storage.release()
 
@@ -129,21 +131,15 @@ while vid.isOpened():
     if not ret:
         break
 
-    if frame_nr == 0:
-        sample_image = frame
     frame_nr += 1
 
-    # analyze each 25th frame only
-    # TODO: 50 is just for faster testing, change back to 26 for final run
-    if frame_nr == 50:
+    if frame_nr == 40:
         frame_nr = 1
 
         # Undistorts the image
         dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
         rx, ry, rw, rh = roi
         dst = dst[ry:ry + rh, rx:rx + rw]
-        newcameramtx[0, 2] -= rx
-        newcameramtx[1, 2] -= ry
 
         ret2, coords = manual_corner_input(dst, corners_x, corners_y, subpix=True)
         if ret2:
@@ -152,3 +148,29 @@ while vid.isOpened():
 
 vid.release()
 
+coords = np.mean(imgpoints, axis=0) # Finds the average from all the manual input results
+ret, rvec, tvec = cv.solvePnP(objp, coords, newcameramtx, np.zeros((5, 1)))
+
+R, _ = cv.Rodrigues(rvec)
+print("Saving camera extrinsics...")
+extr_filename = f'cam{cam_nr}/extrinsics.xml'
+extr_storage = cv.FileStorage()
+extr_storage.open(extr_filename, cv.FileStorage_WRITE)
+extr_storage.write('RotationVector', R)
+extr_storage.write('TranslationVector', tvec)
+extr_storage.release()
+
+vid = cv.VideoCapture(f'cam{cam_nr}/checkerboard.avi')
+
+while vid.isOpened():
+    ret, frame = vid.read()
+    if not ret:
+        break
+
+    dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
+    rx, ry, rw, rh = roi
+    dst = dst[ry:ry + rh, rx:rx + rw]
+
+    out = draw(dst, coords, rvec, tvec, newcameramtx, np.zeros((5, 1)), 0.025, no_cube=True)
+    cv.imshow('res', out)
+    cv.waitKey(0) # For some reason the video refuses to render when played fully, but works frame by frame. At least on Windows.

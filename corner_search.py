@@ -3,7 +3,6 @@ import numpy as np
 import os
 os.environ["OPENCV_OPENCL_RUNTIME"] = "disabled"
 cv.ocl.setUseOpenCL(False)
-
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 def find_corners(img, x, y, SB=False):
@@ -30,6 +29,7 @@ def click_event(event, x, y, flags, param):
         param["four_corners"].append([x, y])
         font = cv.FONT_HERSHEY_SIMPLEX
         cv.putText(param["img2"], "O", (x - offset, y + offset), font, 0.5, (255, 0, 0), 2)
+        cv.namedWindow('image', cv.WINDOW_KEEPRATIO)
         cv.imshow('image', param["img2"])
 
 
@@ -39,6 +39,7 @@ def manual_corner_input(img, x, y, subpix=False):
     four_corners = []
     param = {"img2": img2, "four_corners": four_corners}
 
+    cv.namedWindow('image', cv.WINDOW_KEEPRATIO)
     cv.imshow("image", img2)
     cv.setMouseCallback("image", click_event, param)
     while len(four_corners) < 4:
@@ -75,7 +76,7 @@ def manual_corner_input(img, x, y, subpix=False):
 
     if subpix:
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        points = cv.cornerSubPix(gray, points, (11, 11), (-1, -1), criteria)
+        points = cv.cornerSubPix(gray, points, (1, 1), (-1, -1), criteria)
 
     return True, points
 
