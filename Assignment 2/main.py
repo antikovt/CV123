@@ -47,7 +47,7 @@ while vid.isOpened():
 
     # analyze each 25th frame only
     # TODO: 100 is just for faster testing, change back to 26 for final run
-    if frame_nr == 100:
+    if frame_nr == 21:
         frame_nr = 1
         ret2, coords = find_corners(frame, corners_x, corners_y, True)
         if ret2:

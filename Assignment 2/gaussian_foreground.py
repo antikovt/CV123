@@ -75,8 +75,10 @@ def extract_mask_mahalanobis(frame_bgr, mean, std, T, min_std):
 
 def write_mask_video_mahalanobis(video_avi_path, out_avi_path,
                                  mean, std, roi, map1, map2,
-                                 T=3.0, min_std=5.0):
+                                 T=3.0, min_std=5.0, area=750, aggressiveness=1):
     cap = cv.VideoCapture(video_avi_path)
+
+    if aggressiveness < 0: aggressiveness = 0
 
     fps = cap.get(cv.CAP_PROP_FPS)
     x, y, w_roi, h_roi = roi
@@ -93,6 +95,19 @@ def write_mask_video_mahalanobis(video_avi_path, out_avi_path,
         undist = undist[y:y + h_roi, x:x + w_roi]
 
         mask = extract_mask_mahalanobis(undist, mean, std, T=T, min_std=min_std)
+        mask = cv.dilate(mask, None, iterations=aggressiveness) # dilation fills gaps, erosion returns to previous size
+        maskcp = mask.copy()
+
+        contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
+        contours = [cnt for cnt in contours if cv.contourArea(cnt) > area] # dilation
+        cv.drawContours(maskcp, contours, -1, (0, 255, 0), -1)
+        np.transpose(np.nonzero(maskcp))
+        mask -= maskcp
+        mask = cv.erode(mask, None, iterations=max(aggressiveness-1, 0)) # erosion REALLY tanks resolution, so by default it's 1-1=0
+
+        # cv.imshow("mask", mask)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
 
         out.write(mask)
     
@@ -100,49 +115,50 @@ def write_mask_video_mahalanobis(video_avi_path, out_avi_path,
     out.release()
 
 
+if __name__ == "__main__":
+    cv.ocl.setUseOpenCL(False)
 
-cv.ocl.setUseOpenCL(False)
+    cam_nr = input("Enter camera number: ")
 
-cam_nr = 3
-K, dist = load_intrinsics(f"cam{cam_nr}/intrinsics.xml")
+    K, dist = load_intrinsics(f"cam{cam_nr}/intrinsics.xml")
 
-mean, std, newK, roi, map1, map2 = gaussian_background_model(
-    f"cam{cam_nr}/background.avi",
-    K, dist,
-    sample_step=5,
-    max_samples=300
-)
+    mean, std, newK, roi, map1, map2 = gaussian_background_model(
+        f"cam{cam_nr}/background.avi",
+        K, dist,
+        sample_step=5,
+        max_samples=300
+    )
 
-# Observations:
-# under 15 min_std shows too much of the shadows
-# around 4 and 15 seem to work well for all but 2, left them like this for now
-T = 4.0
-min_std = 15.0
-
-if cam_nr == 1:
+    # Observations:
+    # under 15 min_std shows too much of the shadows
+    # around 4 and 15 seem to work well for all but 2, left them like this for now
     T = 4.0
     min_std = 15.0
 
-# more strict for cam 2 because of more noise
-if cam_nr == 2:
-    T = 3.0
-    min_std = 25.0
+    if cam_nr == 1:
+        T = 4.0
+        min_std = 15.0
 
-if cam_nr == 3:
-    T = 4.0
-    min_std = 15.0
+    # more strict for cam 2 because of more noise
+    if cam_nr == 2:
+        T = 4.0
+        min_std = 25.0
 
-if cam_nr == 4:
-    T = 4.0
-    min_std = 15.0
+    if cam_nr == 3:
+        T = 4.0
+        min_std = 15.0
 
-write_mask_video_mahalanobis(
-    f"cam{cam_nr}/video.avi",
-    f"cam{cam_nr}/mask.avi",
-    mean, std,
-    roi, map1, map2,
-    T,
-    min_std
-)
+    if cam_nr == 4:
+        T = 4.0
+        min_std = 15.0
 
-print("Wrote cam{}/mask.avi".format(cam_nr))
+    write_mask_video_mahalanobis(
+        f"cam{cam_nr}/video.avi",
+        f"cam{cam_nr}/mask.avi",
+        mean, std,
+        roi, map1, map2,
+        T,
+        min_std
+    )
+
+    print("Wrote cam{}/mask.avi".format(cam_nr))

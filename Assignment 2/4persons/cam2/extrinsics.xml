@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<RotationVector type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>3</cols>
+  <dt>d</dt>
+  <data>
+    0.94960810976146903 0.24359730069045055 -0.1972429795241793
+    0.048921586957193827 0.50638445350714312 0.86091896458137196
+    0.30959831427971202 -0.82718507018840604 0.46894961717924716</data></RotationVector>
+<TranslationVector type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>1</cols>
+  <dt>d</dt>
+  <data>
+    -14.313171143720009 2.9477504938771246 31.402178115184974</data></TranslationVector>
+</opencv_storage>
