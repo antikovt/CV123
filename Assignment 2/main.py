@@ -124,6 +124,13 @@ intr_storage.write('CameraMatrix', intr_matrix)
 intr_storage.write('DistortionCoeffs', intr_dist)
 intr_storage.release()
 
+print("Saving config file...")
+extr_filename = f'cam{cam_nr}/config.xml'
+extr_storage_config = cv.FileStorage()
+extr_storage_config.open(extr_filename, cv.FileStorage_WRITE)
+extr_storage_config.write('CameraMatrix', newcameramtx)
+extr_storage_config.write('CameraDistortion', dist)
+
 vid = cv.VideoCapture(f'cam{cam_nr}/checkerboard.avi')
 frame_nr = 0
 objpoints = []
@@ -152,6 +159,7 @@ while vid.isOpened():
 vid.release()
 
 coords = np.mean(imgpoints, axis=0) # Finds the average from all the manual input results
+
 ret, rvec, tvec = cv.solvePnP(objp, coords, newcameramtx, np.zeros((5, 1)))
 
 R, _ = cv.Rodrigues(rvec)
@@ -159,9 +167,18 @@ print("Saving camera extrinsics...")
 extr_filename = f'cam{cam_nr}/extrinsics.xml'
 extr_storage = cv.FileStorage()
 extr_storage.open(extr_filename, cv.FileStorage_WRITE)
-extr_storage.write('RotationVector', R)
+extr_storage.write('RotationMatrix', R)
 extr_storage.write('TranslationVector', tvec)
 extr_storage.release()
+
+
+extr_storage_config.write('RotationVector', rvec)
+extr_storage_config.write('TranslationVector', tvec)
+extr_storage_config.write("ImageWidth", int(rw))
+extr_storage_config.write("ImageHeight", int(rh))
+extr_storage_config.write('ROI', roi)  
+extr_storage_config.release()
+
 
 vid = cv.VideoCapture(f'cam{cam_nr}/checkerboard.avi')
 
@@ -173,8 +190,9 @@ while vid.isOpened():
     dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
     rx, ry, rw, rh = roi
     dst = dst[ry:ry + rh, rx:rx + rw]
+    K = newcameramtx.copy()
 
-    out = draw(dst, coords, rvec, tvec, newcameramtx, np.zeros((5, 1)), cell_size, no_cube=True)
+    out = draw(dst, coords, rvec, tvec, K, np.zeros((5, 1)), cell_size, no_cube=True)
     cv.imshow('res', out)
-    cv.waitKey(1) # For some reason the video refuses to render when played fully, but works frame by frame. At least on Windows.
+    cv.waitKey(1) 
 

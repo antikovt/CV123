@@ -2,16 +2,18 @@ import cv2 as cv
 import numpy as np
 
 def load_intrinsics(path):
+
     fs = cv.FileStorage(path, cv.FileStorage_READ)
     K = fs.getNode("CameraMatrix").mat()
     dist = fs.getNode("DistortionCoeffs").mat()
     fs.release()
+    
     return K, dist
 
 
-def gaussian_background_model(background_avi_path, K, dist, sample_step=5, max_samples=None):
+def gaussian_background_model(background_path, K, dist, sample_step=5, max_samples=None):
 
-    cap = cv.VideoCapture(background_avi_path)
+    cap = cv.VideoCapture(background_path)
     ret, first = cap.read()
 
 
@@ -93,6 +95,8 @@ def write_mask_video_mahalanobis(video_avi_path, out_avi_path,
         undist = undist[y:y + h_roi, x:x + w_roi]
 
         mask = extract_mask_mahalanobis(undist, mean, std, T=T, min_std=min_std)
+
+        print(mask.shape, (h_roi, w_roi))
 
         out.write(mask)
     
