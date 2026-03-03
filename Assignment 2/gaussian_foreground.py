@@ -99,9 +99,11 @@ def write_mask_video_mahalanobis(video_avi_path, out_avi_path,
     cap.release()
     out.release()
 
+
+
 cv.ocl.setUseOpenCL(False)
 
-cam_nr = 4
+cam_nr = 3
 K, dist = load_intrinsics(f"cam{cam_nr}/intrinsics.xml")
 
 mean, std, newK, roi, map1, map2 = gaussian_background_model(

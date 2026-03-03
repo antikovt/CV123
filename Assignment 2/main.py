@@ -171,6 +171,6 @@ while vid.isOpened():
     rx, ry, rw, rh = roi
     dst = dst[ry:ry + rh, rx:rx + rw]
 
-    out = draw(dst, coords, rvec, tvec, newcameramtx, np.zeros((5, 1)), 0.025, no_cube=True)
+    out = draw(dst, coords, rvec, tvec, newcameramtx, np.zeros((5, 1)), cell_size, no_cube=True)
     cv.imshow('res', out)
     cv.waitKey(0) # For some reason the video refuses to render when played fully, but works frame by frame. At least on Windows.

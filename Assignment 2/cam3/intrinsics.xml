@@ -3,23 +3,15 @@
 <CameraMatrix type_id="opencv-matrix">
   <rows>3</rows>
   <cols>3</cols>
-  <dt>f</dt>
+  <dt>d</dt>
   <data>
-    0. 0. 0.
-    0. 0. 0.
-    0. 0. 1.
-  </data>
-</CameraMatrix>
+    342.77028239551794 0. 321.94642956296195 0. 345.73335459650161
+    230.71433192444383 0. 0. 1.</data></CameraMatrix>
 <DistortionCoeffs type_id="opencv-matrix">
   <rows>5</rows>
   <cols>1</cols>
-  <dt>f</dt>
+  <dt>d</dt>
   <data>
-    0.
-    0.
-    0.
-    0.
-    0.
-  </data>
-</DistortionCoeffs>
+    -0.36207694311121602 0.18351607442249099 0.0011908585508822536
+    0.00020008929090365322 -0.057862038536328646</data></DistortionCoeffs>
 </opencv_storage>
