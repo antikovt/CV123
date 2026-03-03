@@ -1,10 +1,13 @@
 import cv2 as cv
 import numpy as np
-from numpy.ma.extras import average
 
 from corner_search import find_corners, manual_corner_input
 from cube_draw import draw
 from remove_inaccurate_results import reprojection_error_filter_silent
+
+# disabled OpenCL to avoid errors/ now everything is done by the cpu
+cv.ocl.setUseOpenCL(False)
+cv.setUseOptimized(True)  
 
 # read checkerboard characteristics from checkerboard.xml
 cb_storage = cv.FileStorage()
@@ -171,6 +174,7 @@ while vid.isOpened():
     rx, ry, rw, rh = roi
     dst = dst[ry:ry + rh, rx:rx + rw]
 
-    out = draw(dst, coords, rvec, tvec, newcameramtx, np.zeros((5, 1)), 0.025, no_cube=True)
+    out = draw(dst, coords, rvec, tvec, newcameramtx, np.zeros((5, 1)), cell_size, no_cube=True)
     cv.imshow('res', out)
-    cv.waitKey(0) # For some reason the video refuses to render when played fully, but works frame by frame. At least on Windows.
+    cv.waitKey(1) # For some reason the video refuses to render when played fully, but works frame by frame. At least on Windows.
+
