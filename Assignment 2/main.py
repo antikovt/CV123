@@ -46,8 +46,8 @@ while vid.isOpened():
     frame_nr += 1
 
     # analyze each 25th frame only
-    # TODO: 100 is just for faster testing, change back to 26 for final run
-    if frame_nr == 100:
+    # TODO: 100 is just for faster testing, change back to 25 for final run
+    if frame_nr == 25:
         frame_nr = 1
         ret2, coords = find_corners(frame, corners_x, corners_y, True)
         if ret2:
@@ -66,6 +66,7 @@ ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
 h, w = sample_gray.shape[:2]
 newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
 
+# helper code from last assignment, also used to filter out the selected frames with a big reprojection error
 print("\nK")
 print(mtx)
 
@@ -116,25 +117,29 @@ intr_matrix = intr_storage.getNode("CameraMatrix").mat()
 intr_dist = intr_storage.getNode("DistortionCoeffs").mat()
 intr_storage.release()
 
-intr_matrix = newcameramtx
+intr_matrix = mtx
 intr_dist = dist.T
 
+# saving the intrinsics of the camera before undistortion
 intr_storage.open(intr_filename, cv.FileStorage_WRITE)
 intr_storage.write('CameraMatrix', intr_matrix)
 intr_storage.write('DistortionCoeffs', intr_dist)
 intr_storage.release()
 
+# saving a config file to be used for the rest of the hw, the intrinsics here are for the undistorted camera
 print("Saving config file...")
 extr_filename = f'cam{cam_nr}/config.xml'
 extr_storage_config = cv.FileStorage()
 extr_storage_config.open(extr_filename, cv.FileStorage_WRITE)
 extr_storage_config.write('CameraMatrix', newcameramtx)
-extr_storage_config.write('CameraDistortion', dist)
+extr_storage_config.write('CameraDistortion', np.zeros((5, 1)))
 
 vid = cv.VideoCapture(f'cam{cam_nr}/checkerboard.avi')
 frame_nr = 0
 objpoints = []
 imgpoints = []
+
+# calculating extrinsics
 
 while vid.isOpened():
     ret, frame = vid.read()
@@ -149,6 +154,9 @@ while vid.isOpened():
         # Undistorts the image
         dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
         rx, ry, rw, rh = roi
+        K_roi = newcameramtx.copy()
+        K_roi[0,2] -= rx
+        K_roi[1,2] -= ry
         dst = dst[ry:ry + rh, rx:rx + rw]
 
         ret2, coords = manual_corner_input(dst, corners_x, corners_y, subpix=True)
@@ -160,8 +168,9 @@ vid.release()
 
 coords = np.mean(imgpoints, axis=0) # Finds the average from all the manual input results
 
-ret, rvec, tvec = cv.solvePnP(objp, coords, newcameramtx, np.zeros((5, 1)))
+ret, rvec, tvec = cv.solvePnP(objp, coords, K_roi, np.zeros((5, 1)))
 
+# making an extrinsics file, is not used later on
 R, _ = cv.Rodrigues(rvec)
 print("Saving camera extrinsics...")
 extr_filename = f'cam{cam_nr}/extrinsics.xml'
@@ -171,15 +180,13 @@ extr_storage.write('RotationMatrix', R)
 extr_storage.write('TranslationVector', tvec)
 extr_storage.release()
 
-
+# adding extrinsics and roi to the config file, roi is really necessary because we are working with undistorted images
 extr_storage_config.write('RotationVector', rvec)
 extr_storage_config.write('TranslationVector', tvec)
-extr_storage_config.write("ImageWidth", int(rw))
-extr_storage_config.write("ImageHeight", int(rh))
 extr_storage_config.write('ROI', roi)  
 extr_storage_config.release()
 
-
+# view axes to chace if calibration is fine
 vid = cv.VideoCapture(f'cam{cam_nr}/checkerboard.avi')
 
 while vid.isOpened():
@@ -190,9 +197,11 @@ while vid.isOpened():
     dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
     rx, ry, rw, rh = roi
     dst = dst[ry:ry + rh, rx:rx + rw]
-    K = newcameramtx.copy()
+    K_roi = newcameramtx.copy()
+    K_roi[0,2] -= rx
+    K_roi[1,2] -= ry
 
-    out = draw(dst, coords, rvec, tvec, K, np.zeros((5, 1)), cell_size, no_cube=True)
+    out = draw(dst, coords, rvec, tvec, K_roi, np.zeros((5,1)), cell_size, no_cube=True)
     cv.imshow('res', out)
     cv.waitKey(1) 
 
